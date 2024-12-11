@@ -2,5 +2,13 @@
   "[python]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "charliermarsh.ruff"
-  }
+  },
+  "python.testing.pytestArgs": [
+    "./api/tests"
+  ],
+  "python.analysis.extraPaths": [
+    "./api/src"
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true
 }
