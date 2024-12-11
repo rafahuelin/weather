@@ -4,4 +4,4 @@ select = ["ALL"]
 ignore = ["D104" , "I001"]
 
 [per-file-ignores]
-"api/tests/*.py" = ["S101"]
+"api/tests/*.py" = ["S101", "PT001"]
