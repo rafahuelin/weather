@@ -73,15 +73,21 @@ pluggy==1.5.0
 pre-commit==4.0.1
     # via -r requirements.in
 pydantic==2.10.3
-    # via fastapi
+    # via
+    #   fastapi
+    #   pydantic-settings
 pydantic-core==2.27.1
     # via pydantic
+pydantic-settings==2.6.1
+    # via -r requirements.in
 pygments==2.18.0
     # via rich
 pytest==8.3.4
     # via -r requirements.in
 python-dotenv==1.0.1
-    # via uvicorn
+    # via
+    #   pydantic-settings
+    #   uvicorn
 python-multipart==0.0.19
     # via fastapi
 pyyaml==6.0.2
