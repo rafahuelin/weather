@@ -57,8 +57,8 @@ def get_timeseries(
     try:
         data: AEMETResponse = antartida_api_request(datetime_start, datetime_end, meteo_station)
         downloaded_timeseries: list[dict] = download_timeseries(data.datos)
-        df_aggregatted: pd.DataFrame = aggregate_timeseries(downloaded_timeseries, time_aggregation, data_types)
-        return {"data": df_aggregatted.to_dict(orient="records")}
+        df_aggregated: pd.DataFrame = aggregate_timeseries(downloaded_timeseries, time_aggregation, data_types)
+        return {"data": df_aggregated.to_dict(orient="records")}
     except HTTPError as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

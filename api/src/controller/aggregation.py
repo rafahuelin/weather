@@ -40,7 +40,7 @@ def build_df(timeseries: list[dict], data_types: list[str] | None = None) -> pd.
         data.append(row)
 
     df_timeseries = pd.DataFrame(data)
-    df_timeseries["Datetime"] = pd.to_datetime(df_timeseries["Datetime"])
+    df_timeseries["Datetime"] = pd.to_datetime(df_timeseries["Datetime"]).dt.tz_convert("UTC")
     df_timeseries.set_index("Datetime", inplace=True)  # noqa: PD002
 
     return df_timeseries
@@ -56,17 +56,20 @@ def aggregate_timeseries(
     if time_aggregation is None:
         df_aggregated = df_timeseries
     elif time_aggregation == "Hourly":
-        df_aggregated = df_timeseries.resample("H").mean(numeric_only=True)
+        numeric_df = df_timeseries.select_dtypes(include="number")
+        non_numeric_df = df_timeseries.select_dtypes(exclude="number")
+        numeric_aggregated = numeric_df.resample("H").mean(numeric_only=True)
+        non_numeric_aggregated = non_numeric_df.resample("H").first()
+        df_aggregated = pd.concat([numeric_aggregated, non_numeric_aggregated], axis=1)
     elif time_aggregation in ["Daily", "Monthly"]:
-        # Localize timestamps to UTC
-        if df_timeseries.index.tz is None:
-            df_timeseries.index = df_timeseries.index.tz_localize("UTC")
-        else:
-            df_timeseries.index = df_timeseries.index.tz_convert("UTC")
         # Get timezone of the station
         timezone = get_timezone(timeseries[0]["latitud"], timeseries[0]["longitud"])
-        # Convert to local timezone
-        df_timeseries.index = df_timeseries.index.tz_convert(timezone)
+        # Localize timestamps to the station's timezone
+        if df_timeseries.index.tz is None:
+            df_timeseries.index = df_timeseries.index.tz_localize(timezone)
+        else:
+            df_timeseries.index = df_timeseries.index.tz_convert(timezone)
+        # Convert to Madrid timezone and keep the GMT offset in the datetime
         numeric_df: pd.DataFrame = df_timeseries.select_dtypes(include="number")
         non_numeric_df: pd.DataFrame = df_timeseries.select_dtypes(exclude="number")
         granularity_param: str = time_aggregation.value[0]  # D (Daily) or M (Monthly)
@@ -76,4 +79,7 @@ def aggregate_timeseries(
     else:
         msg = "Invalid time aggregation value."
         raise ValueError(msg)
+    df_aggregated.index = df_aggregated.index.tz_convert("Europe/Madrid")
+    df_aggregated = df_aggregated.reset_index()
+    df_aggregated["Datetime"] = df_aggregated["Datetime"].dt.strftime("%Y-%m-%d %H:%M:%S%z")
     return df_aggregated

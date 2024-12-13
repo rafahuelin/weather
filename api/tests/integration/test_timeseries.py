@@ -47,7 +47,13 @@ def test_get_timeseries(
 
     assert len(response_data) == measurements_data.AGGREGATED_HOURS_AMOUNT
     response_cols = response_data[0].keys()
-    assert all(c in ["Temperature (ºC)", "Speed"] for c in response_cols)
+    assert all(c in ["Datetime", "Temperature (ºC)", "Speed (m/s)", "Station"] for c in response_cols)
+    assert response_data[0] == {
+        "Datetime": "2021-01-25 01:00:00+0100",
+        "Temperature (ºC)": 0.8166666666666668,
+        "Station": "GdC Estacion meteorologica",
+        "Speed (m/s)": 8.4,
+    }
 
 
 def test_get_timeseries_no_data_types(
