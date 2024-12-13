@@ -9,7 +9,7 @@ import responses
 from fastapi.testclient import TestClient
 
 from src.main import app
-from api.tests.fixtures import raw_data
+from api.tests.fixtures import raw_data, raw_data_dst
 
 
 @pytest.fixture()
@@ -33,10 +33,14 @@ class Measurement:
     measurements: list[dict] = field(default_factory=lambda: raw_data.measurements)
     DATETIME_START: str = "2021-01-25T00:00:00UTC"
     DATETIME_END: str = "2021-02-10T00:00:00UTC"
+    DATETIME_START_DST: str = "2021-07-25T00:00:00UTC"
+    DATETIME_END_DST: str = "2021-08-10T00:00:00UTC"
     URL_JSON_FILE: str = "https://opendata.aemet.es/opendata/sh/3868ec24_202412122150_json"
     URL_AEMET_API: str = "https://opendata.aemet.es/opendata/api/antartida/datos/fechaini/2021-01-25T00:00:00UTC/fechafin/2021-02-10T00:00:00UTC/estacion/89064"
+    URL_AEMET_API_DST: str = "https://opendata.aemet.es/opendata/api/antartida/datos/fechaini/2021-07-25T00:00:00UTC/fechafin/2021-08-10T00:00:00UTC/estacion/89064"
     NON_AGGREGATED_AMOUNT: int = 2305
     AGGREGATED_HOURS_AMOUNT: int = 385
+    AGGREGATED_DAYS_AMOUNT_DST: int = 408
     AGGREGATED_DAYS_AMOUNT: int = 17
     AGGREGATED_MONTHS_AMOUNT: int = 2
 
@@ -45,3 +49,9 @@ class Measurement:
 def measurements_data() -> Measurement:
     """Measurements from downloaded json."""
     return Measurement()
+
+
+@pytest.fixture()
+def raw_measurements_dst() -> list[dict]:
+    """Raw data from AEMET API in DST Daylight Saving Time."""
+    return raw_data_dst.measurements
