@@ -1,7 +1,20 @@
+# Maximum line length for the code
 line-length = 119
 
+# Select all linting rules
 select = ["ALL"]
-ignore = ["D104" , "I001"]
 
+# Ignore specific linting rules
+ignore = [
+    "D104",  # Ignore missing docstring in public package
+    "FA102",  # Ignore missing `from __future__ import annotations` when using PEP 604 union types
+    "I001",  # Ignore import sorting issues
+    "S113"  # request-without-timeout
+]
+
+# Per-file ignores for specific directories or files
 [per-file-ignores]
-"api/tests/*.py" = ["S101", "PT001"]
+"api/tests/*.py" = [
+    "S101",  # Ignore use of assert detected in test files
+    "PT001"  # Ignore use of @pytest.fixture without parentheses in test files
+]
