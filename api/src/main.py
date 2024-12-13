@@ -1,6 +1,5 @@
 """Main package for the API."""
 
-from datetime import datetime, timezone
 from typing import Annotated
 
 from typing import TYPE_CHECKING
@@ -13,28 +12,9 @@ from requests import HTTPError
 from src.config import settings
 from src.controller.aggregation import aggregate_timeseries
 from src.controller.api_requests import antartida_api_request, download_timeseries
-from src.schemas import DATETIME_FORMAT, AEMETResponse, DataType, MeteoStation, TimeAggregation
+from src.schemas import AEMETResponse, DataType, MeteoStation, TimeAggregation
 
 app = FastAPI()
-
-
-def validate_datetime_format(date_str: str = Query(...)) -> str:
-    """Validate the requirements datetime format."""
-    if not settings.DATETIME_PATTERN.match(date_str):
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid datetime format: {date_str}. Expected format: YYYY-MM-DDTHH:MM:SSUTC",
-        )
-    try:
-        datetime_parsed = datetime.strptime(date_str[:-3], DATETIME_FORMAT).replace(
-            tzinfo=timezone.utc,
-        )
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid datetime value: {date_str}. Expected format: YYYY-MM-DDTHH:MM:SSUTC",
-        ) from exc
-    return datetime_parsed
 
 
 @app.get("/timeseries")
