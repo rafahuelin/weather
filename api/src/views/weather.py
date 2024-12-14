@@ -17,23 +17,21 @@ from src.schemas import AEMETResponse, DataType, MeteoStation, TimeAggregation
 router = APIRouter(prefix="/weather", tags=["Weather"])
 
 
-@router.get("/timeseries")
+@router.get("/antartida")
 def get_timeseries(
     meteo_station: Annotated[MeteoStation, Query(..., description="Meteo station to retrieve data from.")],
     datetime_start: Annotated[str, Query(pattern=settings.DATETIME_PATTERN)],
     datetime_end: Annotated[str, Query(pattern=settings.DATETIME_PATTERN)],
     time_aggregation: Annotated[
         TimeAggregation | None,
-        Query(
-            description="Aggregation that the user requires or None.",
-        ),
+        Query(description="Aggregation that the user requires or None."),
     ] = None,
     data_types: Annotated[
         list[DataType] | None,
         Query(description="Data types: temperature, pressure, speed. If not provided, all types are returned."),
     ] = None,
 ) -> dict:
-    """Return timeseries data based on the specified parameters."""
+    """Return timeseries from antartida stations."""
     try:
         data: AEMETResponse = antartida_api_request(datetime_start, datetime_end, meteo_station)
         downloaded_timeseries: list[dict] = download_timeseries(data.datos)

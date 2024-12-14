@@ -9,6 +9,9 @@ from api.tests.conftest import Measurement
 from src.schemas import MeteoStation
 
 
+ANTARTIDA_ENDPOINT: str = "/weather/antartida"
+
+
 def test_get_timeseries(
     client: TestClient,
     mocked_responses: RequestsMock,
@@ -32,7 +35,7 @@ def test_get_timeseries(
     )
     request_data_types = ["temperature", "speed"]
     response = client.get(
-        "/weather/timeseries",
+        ANTARTIDA_ENDPOINT,
         params={
             "datetime_start": measurements_data.DATETIME_START,
             "datetime_end": measurements_data.DATETIME_END,
@@ -81,7 +84,7 @@ def test_get_timeseries_dst(
     )
     request_data_types = ["temperature", "speed"]
     response = client.get(
-        "/weather/timeseries",
+        ANTARTIDA_ENDPOINT,
         params={
             "datetime_start": measurements_data.DATETIME_START_DST,
             "datetime_end": measurements_data.DATETIME_END_DST,
@@ -127,7 +130,7 @@ def test_get_timeseries_no_data_types(
         status=status.HTTP_200_OK,
     )
     response = client.get(
-        "/weather/timeseries",
+        ANTARTIDA_ENDPOINT,
         params={
             "datetime_start": measurements_data.DATETIME_START,
             "datetime_end": measurements_data.DATETIME_END,
