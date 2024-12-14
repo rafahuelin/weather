@@ -1,8 +1,26 @@
 """Aggregation functions for timeseries data."""
 
+from datetime import datetime
 from typing import Literal
 import pandas as pd
 from timezonefinder import TimezoneFinder
+
+from src.db.models import WeatherData
+
+
+def parse_weather_data(raw_data: list[dict]) -> list[WeatherData]:
+    """Parse raw weather data into a list of WeatherData objects."""
+    weather_data_list = []
+    for entry in raw_data:
+        weather_data = WeatherData(
+            station_id=entry["idema"],
+            timestamp=datetime.fromisoformat(entry["fint"]),
+            temperature=entry.get("ta"),
+            pressure=entry.get("pres"),
+            speed=entry.get("vv"),
+        )
+        weather_data_list.append(weather_data)
+    return weather_data_list
 
 
 def get_timezone(latitude: float, longitude: float) -> str:

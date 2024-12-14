@@ -7,7 +7,10 @@ from collections.abc import Generator
 import pytest
 import responses
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlmodel import Session, SQLModel
 
+from src.config import settings
 from src.main import app
 from api.tests.fixtures import raw_data, raw_data_dst
 
@@ -55,3 +58,20 @@ def measurements_data() -> Measurement:
 def raw_measurements_dst() -> list[dict]:
     """Raw data from AEMET API in DST Daylight Saving Time."""
     return raw_data_dst.measurements
+
+
+@pytest.fixture()
+def db() -> Generator[Session, Any, None]:
+    """Provide a database session fixture for tests."""
+    from pathlib import Path
+
+    if Path("test_database.db").exists():
+        from pathlib import Path
+
+        Path("test_database.db").unlink()
+
+    engine = create_engine(settings.TEST_DATABASE_URL)
+    SQLModel.metadata.create_all(engine)
+
+    with Session(engine) as session:
+        yield session

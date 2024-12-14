@@ -2,11 +2,14 @@
 
 from collections.abc import Generator
 
-from sqlmodel import create_engine, SQLModel, Session, SessionLocal
+from sqlalchemy.orm import sessionmaker
+from sqlmodel import create_engine, SQLModel, Session
 
-from src.config import DATABASE_URL
+from src.config import settings
 
-engine = create_engine(DATABASE_URL)
+
+engine = create_engine(settings.DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def init_db() -> None:
