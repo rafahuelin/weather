@@ -32,7 +32,7 @@ def test_get_timeseries(
     )
     request_data_types = ["temperature", "speed"]
     response = client.get(
-        "/timeseries",
+        "/weather/timeseries",
         params={
             "datetime_start": measurements_data.DATETIME_START,
             "datetime_end": measurements_data.DATETIME_END,
@@ -81,7 +81,7 @@ def test_get_timeseries_dst(
     )
     request_data_types = ["temperature", "speed"]
     response = client.get(
-        "/timeseries",
+        "/weather/timeseries",
         params={
             "datetime_start": measurements_data.DATETIME_START_DST,
             "datetime_end": measurements_data.DATETIME_END_DST,
@@ -127,7 +127,7 @@ def test_get_timeseries_no_data_types(
         status=status.HTTP_200_OK,
     )
     response = client.get(
-        "/timeseries",
+        "/weather/timeseries",
         params={
             "datetime_start": measurements_data.DATETIME_START,
             "datetime_end": measurements_data.DATETIME_END,
