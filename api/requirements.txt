@@ -11,10 +11,13 @@ certifi==2024.8.30
     # via
     #   httpcore
     #   httpx
+    #   requests
 cffi==1.17.1
     # via timezonefinder
 cfgv==3.4.0
     # via pre-commit
+charset-normalizer==3.4.0
+    # via requests
 click==8.1.7
     # via
     #   rich-toolkit
@@ -50,9 +53,7 @@ httpcore==1.0.7
 httptools==0.6.4
     # via uvicorn
 httpx==0.28.1
-    # via
-    #   fastapi
-    #   respx
+    # via fastapi
 identify==2.6.3
     # via pre-commit
 idna==3.10
@@ -60,6 +61,7 @@ idna==3.10
     #   anyio
     #   email-validator
     #   httpx
+    #   requests
 iniconfig==2.0.0
     # via pytest
 jinja2==3.1.4
@@ -115,8 +117,11 @@ pytz==2024.2
 pyyaml==6.0.2
     # via
     #   pre-commit
+    #   responses
     #   uvicorn
-respx==0.21.1
+requests==2.32.3
+    # via responses
+responses==0.25.3
     # via -r requirements.in
 rich==13.9.4
     # via
@@ -148,6 +153,10 @@ typing-extensions==4.12.2
     #   typer
 tzdata==2024.2
     # via pandas
+urllib3==2.2.3
+    # via
+    #   requests
+    #   responses
 uv==0.5.7
     # via -r requirements.in
 uvicorn==0.32.1

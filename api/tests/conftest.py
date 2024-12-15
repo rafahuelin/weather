@@ -1,8 +1,10 @@
 """Pytest configuration."""
 
-from dataclasses import dataclass, field
-from typing import Any
+import json
 from collections.abc import Generator
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
 
 import pytest
 import responses
@@ -10,9 +12,12 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlmodel import Session, SQLModel
 
+from tests.fixtures import raw_data, raw_data_dst
 from src.config import settings
+from src.controller.aggregation import parse_weather_data
+from src.db.database import get_db
+from src.db.models import WeatherData
 from src.main import app
-from api.tests.fixtures import raw_data, raw_data_dst
 
 
 @pytest.fixture()
@@ -42,10 +47,11 @@ class Measurement:
     URL_AEMET_API: str = "https://opendata.aemet.es/opendata/api/antartida/datos/fechaini/2021-01-25T00:00:00UTC/fechafin/2021-02-10T00:00:00UTC/estacion/89064"
     URL_AEMET_API_DST: str = "https://opendata.aemet.es/opendata/api/antartida/datos/fechaini/2021-07-25T00:00:00UTC/fechafin/2021-08-10T00:00:00UTC/estacion/89064"
     NON_AGGREGATED_AMOUNT: int = 2305
-    AGGREGATED_HOURS_AMOUNT: int = 385
-    AGGREGATED_DAYS_AMOUNT_DST: int = 408
-    AGGREGATED_DAYS_AMOUNT: int = 17
-    AGGREGATED_MONTHS_AMOUNT: int = 2
+    ANTARTIDA_AGGREGATED_HOURS_AMOUNT: int = 385
+    AGGREGATED_HOURS_AMOUNT: int = 4
+    ANTARTIDA_AGGREGATED_DAYS_AMOUNT_DST: int = 408
+    ANTARTIDA_AGGREGATED_DAYS_AMOUNT: int = 17
+    ANTARTIDA_AGGREGATED_MONTHS_AMOUNT: int = 2
 
 
 @pytest.fixture()
@@ -75,3 +81,23 @@ def db() -> Generator[Session, Any, None]:
 
     with Session(engine) as session:
         yield session
+
+
+@pytest.fixture(autouse=True)
+def _override_get_db(db: Session) -> None:
+    """Override the get_db dependency to use the test database session."""
+    app.dependency_overrides[get_db] = lambda: db
+
+
+@pytest.fixture()
+def observacion_convencional_data() -> list[dict]:
+    """Load and return observacion convencional data from a JSON file."""
+    with Path("./api/tests/fixtures/observacion_convencional_file.json").open() as file:
+        return json.load(file)
+
+
+@pytest.fixture()
+def observacion_convencional_one_station_data(observacion_convencional_data: list[dict]) -> list[WeatherData]:
+    """Load and return data from station 0016A (REUS/AEROPUERTO)."""
+    items = [item for item in observacion_convencional_data if item["idema"] == "0016A"]
+    return parse_weather_data(items)

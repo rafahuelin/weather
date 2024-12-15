@@ -1,8 +1,12 @@
 """CRUD operations."""
 
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 
 from sqlmodel import Session, select
+
+if TYPE_CHECKING:
+    from sqlmodel.sql.expression import SelectOfScalar
 
 from src.db.models import LastUpdate, WeatherData
 
@@ -13,7 +17,7 @@ from src.db.models import LastUpdate, WeatherData
 def get_last_update(db: Session) -> datetime | None:
     """Retrieve the last update timestamp from the database."""
     last_update = db.exec(select(LastUpdate).where(LastUpdate.update_id == 1)).first()
-    return last_update.timestamp if last_update else None
+    return datetime.fromisoformat(last_update.timestamp) if last_update else None
 
 
 def track_last_update(db: Session) -> None:
@@ -45,12 +49,19 @@ def get_station_timeseries(
     :param end_dt: End datetime for the timeseries.
     :return: List of WeatherData objects.
     """
-    statement = select(WeatherData).where(
+    statement: SelectOfScalar = select(WeatherData).where(
         WeatherData.station_id == station_id,
-        WeatherData.datetime.between(start_dt, end_dt),
+        WeatherData.timestamp.between(start_dt, end_dt),
     )
     results: list[WeatherData] = session.exec(statement).all()
     return results
+
+
+def is_timeseries_empty(session: Session) -> bool:
+    """Check if the weather data timeseries is empty."""
+    statement: SelectOfScalar = select(WeatherData).limit(1)
+    results: list[WeatherData] = session.exec(statement).all()
+    return not bool(results)
 
 
 def store_weather_data(session: Session, data: list[WeatherData]) -> None:

@@ -1,6 +1,6 @@
 """Weather-related API routes."""
 
-import datetime
+from datetime import datetime
 from typing import Annotated, TYPE_CHECKING
 
 from sqlmodel import Session
@@ -27,8 +27,8 @@ router = APIRouter(prefix="/weather", tags=["Weather"])
 @router.get("/")
 def get_weather_timeseries(  # noqa: PLR0913
     station_id: str,
-    start_datetime: str,
-    end_datetime: str,
+    start_datetime: datetime,
+    end_datetime: datetime,
     db: Annotated[Session, Depends(database.get_db)],
     data_types: Annotated[
         list[DataType] | None,
@@ -41,17 +41,14 @@ def get_weather_timeseries(  # noqa: PLR0913
 ) -> dict:
     """Retrieve weather timeseries data for a given station and time range."""
     try:
-        start_dt = datetime.strptime(start_datetime, "%Y-%m-%dT%H:%M:%SUTC")
-        end_dt = datetime.strptime(end_datetime, "%Y-%m-%dT%H:%M:%SUTC")
-
         if needs_api_fetch(db, end_datetime):
             data: AEMETResponse = observation_api_request()
             downloaded_timeseries: list[dict] = download_timeseries(data.datos)
             results: list[WeatherData] = parse_weather_data(downloaded_timeseries)
             crud.store_weather_data(db, results)
 
-        results: list[WeatherData] = crud.get_station_timeseries(db, station_id, start_dt, end_dt)
-        df_aggregated: pd.DataFrame = aggregate_timeseries(downloaded_timeseries, time_aggregation, data_types)
+        results: list[WeatherData] = crud.get_station_timeseries(db, station_id, start_datetime, end_datetime)
+        df_aggregated: pd.DataFrame = aggregate_timeseries(results, time_aggregation, data_types)
         return {"data": df_aggregated.to_dict(orient="records")}
     except HTTPError as exc:
         raise HTTPException(

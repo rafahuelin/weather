@@ -1,4 +1,4 @@
-"""Integration tests."""
+"""Antartida integration tests."""
 
 import re
 from fastapi import status
@@ -12,7 +12,7 @@ from src.schemas import MeteoStation
 ANTARTIDA_ENDPOINT: str = "/weather/antartida"
 
 
-def test_get_timeseries(
+def test_get_antartida_timeseries(
     client: TestClient,
     mocked_responses: RequestsMock,
     measurements_data: Measurement,
@@ -48,7 +48,7 @@ def test_get_timeseries(
     assert response.status_code == status.HTTP_200_OK
     response_data = response.json()["data"]
 
-    assert len(response_data) == measurements_data.AGGREGATED_HOURS_AMOUNT
+    assert len(response_data) == measurements_data.ANTARTIDA_AGGREGATED_HOURS_AMOUNT
     response_cols = response_data[0].keys()
     assert all(c in ["Datetime", "Temperature (ºC)", "Speed (m/s)", "Station"] for c in response_cols)
     assert response_data[0] == {
@@ -97,7 +97,7 @@ def test_get_timeseries_dst(
     assert response.status_code == status.HTTP_200_OK
     response_data = response.json()["data"]
 
-    assert len(response_data) == measurements_data.AGGREGATED_DAYS_AMOUNT_DST
+    assert len(response_data) == measurements_data.ANTARTIDA_AGGREGATED_DAYS_AMOUNT_DST
     response_cols = response_data[0].keys()
     assert all(c in ["Datetime", "Temperature (ºC)", "Speed (m/s)", "Station"] for c in response_cols)
     assert response_data[0] == {
@@ -140,6 +140,6 @@ def test_get_timeseries_no_data_types(
     )
     assert response.status_code == status.HTTP_200_OK
     data: list[dict] = response.json()["data"]
-    assert len(data) == measurements_data.AGGREGATED_DAYS_AMOUNT
+    assert len(data) == measurements_data.ANTARTIDA_AGGREGATED_DAYS_AMOUNT
     expected_columns = ["Station", "Temperature (ºC)", "Pressure (hpa)", "Speed (m/s)"]
     assert all(column in data[0] for column in expected_columns)
