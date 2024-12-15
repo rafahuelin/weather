@@ -1,11 +1,16 @@
 """Aggregation functions for timeseries data."""
 
 from datetime import datetime
+from logging import getLogger
 from typing import Literal
+
 import pandas as pd
 from timezonefinder import TimezoneFinder
 
 from src.db.models import WeatherData
+
+
+logger = getLogger(__name__)
 
 
 def parse_weather_data(raw_data: list[dict]) -> list[WeatherData]:
@@ -32,6 +37,7 @@ def get_timezone(entry: dict | WeatherData) -> str:
     else:
         latitude, longitude = entry["latitud"], entry["longitud"]
     tf = TimezoneFinder()
+    logger.info(f"Getting timezone for latitude: {latitude}, longitude: {longitude}")
     return tf.timezone_at(lat=latitude, lng=longitude)
 
 
@@ -64,6 +70,7 @@ def _build_row(data_types: list[str], entry: dict) -> dict:
                 row[COLUMNS_MAPPING[col]] = entry[col.value]
             else:
                 msg = f"Column {col} not found in entry."
+                logger.error(msg)
                 raise ValueError(msg)
     return row
 
@@ -117,6 +124,7 @@ def aggregate_timeseries(
 ) -> pd.DataFrame:
     """Aggregate timeseries data."""
     df_timeseries: pd.DataFrame = build_df(timeseries, data_types)
+    logger.debug(f"Built unaggregated timeseries: {df_timeseries}")
 
     if time_aggregation is None:
         df_aggregated = df_timeseries
@@ -137,4 +145,5 @@ def aggregate_timeseries(
     df_aggregated.index = df_aggregated.index.tz_convert("Europe/Madrid")
     df_aggregated = df_aggregated.reset_index()
     df_aggregated["Datetime"] = df_aggregated["Datetime"].dt.strftime("%Y-%m-%d %H:%M:%S%z")
+    logger.debug(f"Aggregated timeseries: {df_aggregated}")
     return df_aggregated

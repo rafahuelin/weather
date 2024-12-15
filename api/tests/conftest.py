@@ -12,12 +12,12 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlmodel import Session, SQLModel
 
-from tests.fixtures import raw_data, raw_data_dst
-from src.config import settings
 from src.controller.aggregation import parse_weather_data
 from src.db.database import get_db
 from src.db.models import WeatherData
 from src.main import app
+from src.setup.config import settings
+from tests.fixtures import raw_data, raw_data_dst
 
 
 @pytest.fixture()

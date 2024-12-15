@@ -1,6 +1,8 @@
 """CRUD operations."""
 
 from datetime import datetime, timezone
+from logging import getLogger
+from sqlite3 import IntegrityError
 from typing import TYPE_CHECKING
 
 from sqlmodel import Session, select
@@ -11,13 +13,22 @@ if TYPE_CHECKING:
 from src.db.models import LastUpdate, WeatherData
 
 
+logger = getLogger(__name__)
+
 # Update tracking
 
 
 def get_last_update(db: Session) -> datetime | None:
     """Retrieve the last update timestamp from the database."""
+    logger.info("Getting last update timestamp.")
     last_update = db.exec(select(LastUpdate).where(LastUpdate.update_id == 1)).first()
     return datetime.fromisoformat(last_update.timestamp) if last_update else None
+
+
+def get_last_update_date(session: Session) -> datetime:
+    """Get the last update date from the database."""
+    last_update = session.query(WeatherData.timestamp).order_by(WeatherData.timestamp.desc()).first()
+    return last_update[0] if last_update else datetime.min
 
 
 def track_last_update(db: Session) -> None:
@@ -30,6 +41,7 @@ def track_last_update(db: Session) -> None:
         last_update = LastUpdate(timestamp=current_timestamp)
         db.add(last_update)
     db.commit()
+    logger.info(f"Tracked update timestamp: {current_timestamp}")
 
 
 # Weather data operations
@@ -66,6 +78,18 @@ def is_timeseries_empty(session: Session) -> bool:
 
 def store_weather_data(session: Session, data: list[WeatherData]) -> None:
     """Store weather data in the database."""
-    session.add_all(data)
-    session.commit()
-    track_last_update(session)
+    try:
+        last_update_date: datetime | None = get_last_update(session)
+        filtered_data = [record for record in data if record.timestamp > last_update_date]
+
+        if not filtered_data:
+            logger.info("No new weather data to store.")
+            return
+
+        session.add_all(filtered_data)
+        session.commit()
+        track_last_update(session)
+        logger.info(f"Stored {len(filtered_data)} weather data entries.")
+    except IntegrityError as exc:
+        session.rollback()
+        logger.warning(f"IntegrityError: {exc}. Some records may already exist.")

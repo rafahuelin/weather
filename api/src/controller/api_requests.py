@@ -5,8 +5,8 @@ from fastapi import HTTPException
 from requests import Response
 from starlette import status
 
-from src.config import settings
 from src.schemas import AEMETResponse, MeteoStation
+from src.setup.config import settings
 
 
 BASE_URL = "https://opendata.aemet.es/opendata/api"
