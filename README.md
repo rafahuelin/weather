@@ -1,5 +1,5 @@
 ## Weather Data app
-<video src="docs/weather-app.mp4" controls="controls" style="max-width: 100%;"></video>
+<video src="[docs/weather-app.mp4](https://github.com/rafahuelin/weather/blob/master/docs/weather-app.mp4)" controls="controls" style="max-width: 100%;"></video>
 
 ### Sequence Diagram
 ```mermaid
