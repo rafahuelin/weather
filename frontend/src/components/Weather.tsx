@@ -1,10 +1,13 @@
 import React, { useState } from 'react'
 import { getWeatherTimeseries, WeatherData } from '../api/weather'
+import { TimeAggregation, DataType } from '../enums'
 
 const Weather: React.FC = () => {
   const [stationId, setStationId] = useState('')
   const [startDatetime, setStartDatetime] = useState('')
   const [endDatetime, setEndDatetime] = useState('')
+  const [timeAggregation, setTimeAggregation] = useState<TimeAggregation | undefined>(undefined)
+  const [dataTypes, setDataTypes] = useState<string[]>([])
   const [weatherData, setWeatherData] = useState<WeatherData[]>([])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -19,11 +22,19 @@ const Weather: React.FC = () => {
     const endDatetimeUTC = convertToUTC(endDatetime)
 
     try {
-      const data = await getWeatherTimeseries(stationId, startDatetimeUTC, endDatetimeUTC)
+      const data = await getWeatherTimeseries(stationId, startDatetimeUTC, endDatetimeUTC, timeAggregation, dataTypes)
       setWeatherData(data)
     } catch (error) {
       console.error('Error fetching weather data:', error)
     }
+  }
+
+  const handleDataTypeChange = (dataType: string) => {
+    setDataTypes((prevDataTypes) =>
+      prevDataTypes.includes(dataType) ?
+        prevDataTypes.filter((type) => type !== dataType) :
+        [...prevDataTypes, dataType],
+    )
   }
 
   return (
@@ -63,6 +74,37 @@ const Weather: React.FC = () => {
             required
           />
         </div>
+        <div>
+          <label htmlFor="timeAggregation" className="block text-sm font-medium text-gray-700">Time Aggregation:</label>
+          <select
+            className="select select-bordered w-full max-w-xs"
+            id="timeAggregation"
+            value={timeAggregation}
+            onChange={(e) => setTimeAggregation(e.target.value as TimeAggregation)}
+          >
+            <option value="">None</option>
+            <option value="Hourly">Hourly</option>
+            <option value="Daily">Daily</option>
+            <option value="Monthly">Monthly</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Data Types:</label>
+          <div className='space-x-3 mt-3'>
+            {Object.values(DataType).map((dataType) => (
+              <label key={dataType} className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  className="checkbox checkbox-info"
+                  value={dataType}
+                  checked={dataTypes.includes(dataType)}
+                  onChange={() => handleDataTypeChange(dataType)}
+                />
+                <span className="ml-2">{dataType}</span>
+              </label>
+            ))}
+          </div>
+        </div>
         <button className="btn btn-outline btn-info" type="submit">Fetch Weather Data</button>
       </form>
 
@@ -72,6 +114,7 @@ const Weather: React.FC = () => {
           <tr>
             <th>Datetime</th>
             <th>Temperature (ºC)</th>
+            <th>Pressure (hpa)</th>
             <th>Speed (m/s)</th>
             <th>Station</th>
           </tr>
@@ -81,6 +124,7 @@ const Weather: React.FC = () => {
             <tr key={index}>
               <td>{entry.Datetime}</td>
               <td>{entry['Temperature (ºC)']}</td>
+              <td>{entry['Pressure (hpa)']}</td>
               <td>{entry['Speed (m/s)']}</td>
               <td>{entry.Station}</td>
             </tr>
