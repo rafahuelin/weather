@@ -1,142 +1,15 @@
 import React, { useState } from 'react'
-import { getWeatherTimeseries, WeatherData } from '../api/weather'
-import { TimeAggregation as TimeAggregationEnum, DataType as DataTypeEnum, stations } from '../enums'
-import { TimeAggregation, DataType } from '../types'
+import { WeatherData } from '../api/weather'
+import WeatherForm from './WeatherForm'
+import WeatherTable from './WeatherTable'
 
 const Weather: React.FC = () => {
-  const [stationId, setStationId] = useState('')
-  const [startDatetime, setStartDatetime] = useState('')
-  const [endDatetime, setEndDatetime] = useState('')
-  const [timeAggregation, setTimeAggregation] = useState<TimeAggregation | undefined>(undefined)
-  const [dataTypes, setDataTypes] = useState<DataType[]>([])
   const [weatherData, setWeatherData] = useState<WeatherData[]>([])
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    const convertToUTC = (datetime: string) => {
-      const date = new Date(datetime)
-      return date.toISOString().replace('.000', '').replace('Z', '+0000')
-    }
-
-    const startDatetimeUTC = convertToUTC(startDatetime)
-    const endDatetimeUTC = convertToUTC(endDatetime)
-
-    try {
-      const data = await getWeatherTimeseries(stationId, startDatetimeUTC, endDatetimeUTC, timeAggregation, dataTypes)
-      setWeatherData(data)
-    } catch (error) {
-      console.error('Error fetching weather data:', error)
-    }
-  }
-
-  const handleDataTypeChange = (dataType: DataType) => {
-    setDataTypes((prevDataTypes) =>
-      prevDataTypes.includes(dataType) ?
-        prevDataTypes.filter((type) => type !== dataType) :
-        [...prevDataTypes, dataType],
-    )
-  }
 
   return (
     <div className="p-4">
-      <form onSubmit={handleSubmit} className="space-y-4 mb-10">
-        <div>
-          <label htmlFor="stationId" className="block text-sm font-medium text-gray-700">Station:</label>
-          <select
-            className="select select-bordered w-full max-w-xs"
-            id="stationId"
-            value={stationId}
-            onChange={(e) => setStationId(e.target.value)}
-            required
-          >
-            <option value="">Select a station</option>
-            {Object.entries(stations).map(([stationName, stationId]) => (
-              <option key={stationId} value={stationId}>
-                {stationName}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="startDatetime" className="block text-sm font-medium text-gray-700">Start Datetime:</label>
-          <input
-            className="input input-bordered w-full max-w-xs"
-            type="datetime-local"
-            id="startDatetime"
-            value={startDatetime}
-            onChange={(e) => setStartDatetime(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="endDatetime" className="block text-sm font-medium text-gray-700">End Datetime:</label>
-          <input
-            className="input input-bordered w-full max-w-xs"
-            type="datetime-local"
-            id="endDatetime"
-            value={endDatetime}
-            onChange={(e) => setEndDatetime(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="timeAggregation" className="block text-sm font-medium text-gray-700">Time Aggregation:</label>
-          <select
-            className="select select-bordered w-full max-w-xs"
-            id="timeAggregation"
-            value={timeAggregation}
-            onChange={(e) => setTimeAggregation(e.target.value as TimeAggregation)}
-          >
-            <option value="">None</option>
-            <option value={TimeAggregationEnum.HOURLY}>Hourly</option>
-            <option value={TimeAggregationEnum.DAILY}>Daily</option>
-            <option value={TimeAggregationEnum.MONTHLY}>Monthly</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Data Types:</label>
-          <div className='space-x-3 mt-3'>
-            {([DataTypeEnum.TEMPERATURE, DataTypeEnum.PRESSURE, DataTypeEnum.SPEED] as DataType[]).map((dataType) => (
-              <label key={dataType} className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-info"
-                  value={dataType}
-                  checked={dataTypes.includes(dataType)}
-                  onChange={() => handleDataTypeChange(dataType)}
-                />
-                <span className="ml-2">{dataType}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-        <button className="btn btn-outline btn-info" type="submit">Fetch Weather Data</button>
-      </form>
-
-      <h1 className='text-3xl'>Weather Data</h1>
-      <table className="table mt-4">
-        <thead>
-          <tr>
-            <th>Datetime</th>
-            <th>Temperature (ºC)</th>
-            <th>Pressure (hpa)</th>
-            <th>Speed (m/s)</th>
-            <th>Station</th>
-          </tr>
-        </thead>
-        <tbody>
-          {weatherData.map((entry, index) => (
-            <tr key={index}>
-              <td>{entry.Datetime}</td>
-              <td>{entry['Temperature (ºC)']}</td>
-              <td>{entry['Pressure (hpa)']}</td>
-              <td>{entry['Speed (m/s)']}</td>
-              <td>{entry.Station}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <WeatherForm setWeatherData={setWeatherData} />
+      <WeatherTable weatherData={weatherData} />
     </div>
   )
 }
