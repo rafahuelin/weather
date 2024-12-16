@@ -1,6 +1,20 @@
 ## Weather Data app
 <video src="docs/weather-app.mp4" controls="controls" style="max-width: 100%;"></video>
 
+### Sequence Diagram
+```mermaid
+sequenceDiagram
+    actor User
+    User->>WeatherForm: Submit form
+    WeatherForm->>Backend API: Request weather data
+    Backend API->>CRUD Operations: Retrieve data
+    CRUD Operations->>Database: Query weather data
+    Database-->>CRUD Operations: Return data
+    CRUD Operations-->>Backend API: Return data
+    Backend API-->>WeatherForm: Return weather data
+    WeatherForm->>WeatherTable: Update weather data
+    WeatherTable->>User: Display weather data
+```
 
 ### Metrics and Alerts
 
