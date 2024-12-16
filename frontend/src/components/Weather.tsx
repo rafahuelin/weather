@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { getWeatherTimeseries, WeatherData } from '../api/weather'
-import { TimeAggregation as TimeAggregationEnum, DataType as DataTypeEnum } from '../enums'
+import { TimeAggregation as TimeAggregationEnum, DataType as DataTypeEnum, stations } from '../enums'
 import { TimeAggregation, DataType } from '../types'
 
 const Weather: React.FC = () => {
@@ -42,16 +42,21 @@ const Weather: React.FC = () => {
     <div className="p-4">
       <form onSubmit={handleSubmit} className="space-y-4 mb-10">
         <div>
-          <label htmlFor="stationId" className="block text-sm font-medium text-gray-700">Station ID:</label>
-          <input
-            className="input input-bordered w-full max-w-xs"
-            type="text"
+          <label htmlFor="stationId" className="block text-sm font-medium text-gray-700">Station:</label>
+          <select
+            className="select select-bordered w-full max-w-xs"
             id="stationId"
             value={stationId}
             onChange={(e) => setStationId(e.target.value)}
             required
-            placeholder='Station ID'
-          />
+          >
+            <option value="">Select a station</option>
+            {Object.entries(stations).map(([stationName, stationId]) => (
+              <option key={stationId} value={stationId}>
+                {stationName}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label htmlFor="startDatetime" className="block text-sm font-medium text-gray-700">Start Datetime:</label>
