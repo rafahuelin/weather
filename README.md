@@ -1,6 +1,24 @@
 ## Weather Data app
 ![Weather App](docs/weather-app.gif)
 
+### Run the app
+
+#### Backend
+
+With the project virtual environment activated, navigate to the root directory of the project and run the following command:
+
+```shell
+export PYTHONPATH=$(pwd)/api && uvicorn api.src.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+#### Frontend
+
+In another terminal, navigate to the frontend directory and run:
+
+```shell
+npm run dev
+```
+
 ### Sequence Diagram
 ```mermaid
 sequenceDiagram
