@@ -3,12 +3,17 @@ import { WeatherData } from '../api/weather'
 
 interface WeatherTableProps {
   weatherData: WeatherData[]
+  loading: boolean
 }
 
-const WeatherTable: React.FC<WeatherTableProps> = ({ weatherData }) => {
+const WeatherTable: React.FC<WeatherTableProps> = ({ weatherData, loading }) => {
   return (
     <div>
-      {weatherData.length > 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center mt-7">
+          <span className="loading loading-spinner loading-xl"></span>
+        </div>
+      ) : weatherData.length > 0 ? (
         <table className="table mt-4">
           <thead>
             <tr>
@@ -32,7 +37,7 @@ const WeatherTable: React.FC<WeatherTableProps> = ({ weatherData }) => {
           </tbody>
         </table>
       ) : (
-        <p className='mt-4'>Your data will be here</p>
+        <p>Please search</p>
       )}
     </div>
   )

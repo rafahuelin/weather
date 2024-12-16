@@ -5,9 +5,10 @@ import { TimeAggregation, DataType } from '../types'
 
 interface WeatherFormProps {
   setWeatherData: React.Dispatch<React.SetStateAction<WeatherData[]>>
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const WeatherForm: React.FC<WeatherFormProps> = ({ setWeatherData }) => {
+const WeatherForm: React.FC<WeatherFormProps> = ({ setWeatherData, setLoading }) => {
   const [stationId, setStationId] = useState('')
   const [startDatetime, setStartDatetime] = useState('')
   const [endDatetime, setEndDatetime] = useState('')
@@ -16,6 +17,7 @@ const WeatherForm: React.FC<WeatherFormProps> = ({ setWeatherData }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setLoading(true)
 
     const convertToUTC = (datetime: string) => {
       const date = new Date(datetime)
@@ -30,6 +32,8 @@ const WeatherForm: React.FC<WeatherFormProps> = ({ setWeatherData }) => {
       setWeatherData(data)
     } catch (error) {
       console.error('Error fetching weather data:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
