@@ -1,3 +1,7 @@
+## Weather Data app
+<video src="docs/weather-app.mp4" controls="controls" style="max-width: 100%;"></video>
+
+
 ### Metrics and Alerts
 
 In order to ensure the application is reliable we would need to mesure the application stats
