@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { getWeatherTimeseries, WeatherData } from '../api/weather'
-import { TimeAggregation, DataType } from '../enums'
+import { TimeAggregation as TimeAggregationEnum, DataType as DataTypeEnum } from '../enums'
+import { TimeAggregation, DataType } from '../types'
 
 const Weather: React.FC = () => {
   const [stationId, setStationId] = useState('')
   const [startDatetime, setStartDatetime] = useState('')
   const [endDatetime, setEndDatetime] = useState('')
   const [timeAggregation, setTimeAggregation] = useState<TimeAggregation | undefined>(undefined)
-  const [dataTypes, setDataTypes] = useState<string[]>([])
+  const [dataTypes, setDataTypes] = useState<DataType[]>([])
   const [weatherData, setWeatherData] = useState<WeatherData[]>([])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,7 +30,7 @@ const Weather: React.FC = () => {
     }
   }
 
-  const handleDataTypeChange = (dataType: string) => {
+  const handleDataTypeChange = (dataType: DataType) => {
     setDataTypes((prevDataTypes) =>
       prevDataTypes.includes(dataType) ?
         prevDataTypes.filter((type) => type !== dataType) :
@@ -83,15 +84,15 @@ const Weather: React.FC = () => {
             onChange={(e) => setTimeAggregation(e.target.value as TimeAggregation)}
           >
             <option value="">None</option>
-            <option value="Hourly">Hourly</option>
-            <option value="Daily">Daily</option>
-            <option value="Monthly">Monthly</option>
+            <option value={TimeAggregationEnum.HOURLY}>Hourly</option>
+            <option value={TimeAggregationEnum.DAILY}>Daily</option>
+            <option value={TimeAggregationEnum.MONTHLY}>Monthly</option>
           </select>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Data Types:</label>
           <div className='space-x-3 mt-3'>
-            {Object.values(DataType).map((dataType) => (
+            {([DataTypeEnum.TEMPERATURE, DataTypeEnum.PRESSURE, DataTypeEnum.SPEED] as DataType[]).map((dataType) => (
               <label key={dataType} className="inline-flex items-center">
                 <input
                   type="checkbox"

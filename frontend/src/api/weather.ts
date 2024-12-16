@@ -3,6 +3,7 @@
 export interface WeatherData {
   Datetime: string;
   'Temperature (ºC)'?: number;
+  'Pressure (hpa)'?: number;
   'Speed (m/s)'?: number;
   Station: string;
 }
