@@ -3,6 +3,8 @@
 from logging import getLogger
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 
 from src.setup.logging_config import setup_logging
 from src.views import weather
@@ -12,6 +14,14 @@ logger = getLogger(__name__)
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(weather.router)
 
 logger.info("FastAPI application setup complete.")

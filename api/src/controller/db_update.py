@@ -21,4 +21,4 @@ def needs_api_fetch(session: Session, end_datetime: datetime, trigger_time: int 
         return True
 
     elapsed_time: float = (current_datetime - last_update).total_seconds() / 3600
-    return (end_datetime > last_update) or (elapsed_time >= trigger_time)
+    return (end_datetime > last_update) and (elapsed_time >= trigger_time)
