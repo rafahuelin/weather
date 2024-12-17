@@ -29,9 +29,17 @@ sequenceDiagram
     CRUD Operations->>Database: Query weather data
     Database-->>CRUD Operations: Return data
     CRUD Operations-->>Backend API: Return data
+    Backend API->>Backend API: Check data freshness
+    alt Data not fresh
+        Backend API->>AEMET API: Fetch new data
+        AEMET API-->>Backend API: Return new data
+        Backend API->>CRUD Operations: Store new data
+        CRUD Operations->>Database: Update data
+        Database-->>CRUD Operations: Confirm update
+        CRUD Operations-->>Backend API: Data stored
+    end
     Backend API-->>WeatherForm: Return weather data
-    WeatherForm->>WeatherTable: Update weather data
-    WeatherTable->>User: Display weather data
+    WeatherForm->>WeatherTable: Update weather table
 ```
 
 ### Metrics and Alerts
