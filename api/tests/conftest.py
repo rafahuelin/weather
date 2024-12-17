@@ -9,22 +9,38 @@ from typing import Any
 import pytest
 import responses
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
 from sqlmodel import Session, SQLModel
 
 from src.controller.aggregation import parse_weather_data
-from src.db.database import get_db
+from src.db.database import engine, get_db
 from src.db.models import WeatherData
 from src.main import app
-from src.setup.config import settings
 from tests.fixtures import raw_data, raw_data_dst
 
 
 @pytest.fixture()
-def client() -> Generator[TestClient, Any, None]:
-    """Create a FastAPI TestClient fixture."""
-    with TestClient(app) as client:
-        yield client
+def db_session() -> Generator[Session, None, None]:
+    """Create a new database session for a test."""
+    # Drop and create all tables before each test for a clean state
+    SQLModel.metadata.drop_all(bind=engine)
+    SQLModel.metadata.create_all(bind=engine)
+    with Session(engine) as session:
+        yield session
+    SQLModel.metadata.drop_all(bind=engine)
+
+
+@pytest.fixture()
+def client(db_session: Session) -> Generator[TestClient, None, None]:
+    """Create a new FastAPI test client with a database session."""
+
+    def override_get_db() -> Generator[Session, None, None]:
+        """Override the get_db dependency to use the test database session."""
+        yield db_session
+
+    app.dependency_overrides[get_db] = override_get_db
+    with TestClient(app) as test_client:
+        yield test_client
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture
@@ -64,29 +80,6 @@ def measurements_data() -> Measurement:
 def raw_measurements_dst() -> list[dict]:
     """Raw data from AEMET API in DST Daylight Saving Time."""
     return raw_data_dst.measurements
-
-
-@pytest.fixture()
-def db() -> Generator[Session, Any, None]:
-    """Provide a database session fixture for tests."""
-    from pathlib import Path
-
-    if Path("test_database.db").exists():
-        from pathlib import Path
-
-        Path("test_database.db").unlink()
-
-    engine = create_engine(settings.TEST_DATABASE_URL)
-    SQLModel.metadata.create_all(engine)
-
-    with Session(engine) as session:
-        yield session
-
-
-@pytest.fixture(autouse=True)
-def _override_get_db(db: Session) -> None:
-    """Override the get_db dependency to use the test database session."""
-    app.dependency_overrides[get_db] = lambda: db
 
 
 @pytest.fixture()

@@ -2,7 +2,6 @@
 
 from datetime import datetime, timezone
 from logging import getLogger
-from sqlite3 import IntegrityError
 from typing import TYPE_CHECKING
 
 from sqlmodel import Session, select
@@ -80,16 +79,17 @@ def store_weather_data(session: Session, data: list[WeatherData]) -> None:
     """Store weather data in the database."""
     try:
         last_update_date: datetime | None = get_last_update(session)
-        filtered_data = [record for record in data if record.timestamp > last_update_date]
-
-        if not filtered_data:
-            logger.info("No new weather data to store.")
-            return
-
-        session.add_all(filtered_data)
-        session.commit()
-        track_last_update(session)
-        logger.info(f"Stored {len(filtered_data)} weather data entries.")
-    except IntegrityError as exc:
-        session.rollback()
-        logger.warning(f"IntegrityError: {exc}. Some records may already exist.")
+        if last_update_date is None:
+            # No previous update, store all data
+            filtered_data = data
+        else:
+            filtered_data = [record for record in data if record.timestamp > last_update_date]
+        if filtered_data:
+            session.add_all(filtered_data)
+            session.commit()
+            track_last_update(session)
+        else:
+            logger.info("No new data to store.")
+    except Exception:
+        logger.exception("Error storing weather data")
+        raise
