@@ -10,6 +10,9 @@ With the project virtual environment activated, navigate to the root directory o
 ```shell
 export PYTHONPATH=$(pwd)/api && uvicorn api.src.main:app --host 127.0.0.1 --port 8000 --reload
 ```
+or run with VSCode
+
+![Backend on VSCode](docs/run-backend-with-vscode.png)
 
 #### Frontend
 
