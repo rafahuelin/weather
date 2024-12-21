@@ -14,6 +14,56 @@ or run with VSCode
 
 ![Backend on VSCode](docs/run-backend-with-vscode.png)
 
+#### Run tests
+
+```shell
+python -m pytest
+```
+
+or run the tests With VSCode
+
+![Tests on VSCode](docs/run-tests-with-vscode.png)
+
+#### Code coverage:
+```shell
+python -m pytest --cov=./api/src ./api/tests --cov-report=term-missing
+```
+
+```shell
+---------- coverage: platform linux, python 3.12.8-final-0 -----------
+Name                                 Stmts   Miss  Cover   Missing
+------------------------------------------------------------------
+api/src/__init__.py                      0      0   100%
+api/src/controller/__init__.py           0      0   100%
+api/src/controller/aggregation.py       83      6    93%   69-74, 136
+api/src/controller/api_requests.py      27      3    89%   25, 37, 47
+api/src/controller/db_update.py         13      4    69%   16-17, 23-24
+api/src/db/__init__.py                   0      0   100%
+api/src/db/crud.py                      46     11    76%   10, 29-30, 73-75, 86, 92-95
+api/src/db/database.py                  10      2    80%   19-20
+api/src/db/models.py                    13      0   100%
+api/src/main.py                         14      2    86%   31-33
+api/src/schemas.py                      20      0   100%
+api/src/setup/__init__.py                0      0   100%
+api/src/setup/config.py                  9      0   100%
+api/src/setup/logging_config.py          4      0   100%
+api/src/views/__init__.py                0      0   100%
+api/src/views/weather.py                43      8    81%   11-12, 57-58, 85-91
+------------------------------------------------------------------
+TOTAL                                  282     36    87%
+
+
+=============== 16 passed, 18 warnings in 11.03s =================
+```
+
+or tests with coverage on VSCode
+
+![Test coverage on VSCode](docs/coverage-with-vscode.png)
+
+or coverage displayed in VSCode
+
+![Test coverage in VSCode's file explorer](docs/coverage-in-vscode-file-explorer.png)
+
 #### Frontend
 
 In another terminal, navigate to the frontend directory and run:
